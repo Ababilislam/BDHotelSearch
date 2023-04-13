@@ -1,8 +1,12 @@
 from django.shortcuts import render
-from .models import Hotels
+from .models import Hotels, Freatures
 from django.http import JsonResponse
 def home(request):
-    return render(request, "HotelsApp/home.html")
+    features = Freatures.objects.all()
+    context ={
+        "features":features
+    }
+    return render(request, "HotelsApp/home.html",context)
 
 
 def API_Hotels(request):

@@ -26,27 +26,75 @@
     <div class="row">
         <div class="col m4">
             <div class="input-field col s12">
-                <select multiple>
-                    <option value="" Disabled selected >Choose your option</option>
-                    <option value="">Option1</option>
+                <select multiple id="features" onchange="getHotels()" >
+                    <option value="" disabled selected >Choose your option</option>
+                    {% for feature in features %}
+                        <option value="{{ feature.id }}">{{ feature.name }}</option>
+                    {% endfor %}
+{#                    <option value="">Hello</option>#}
+
                 </select>
                 <label>Select Features</label>
+
 
             </div>
         </div>
         <div class="col m4">
             <label>Hotel Price</label>
             <p class="range-field">
-                <input type="range" id="price" min="0" max="10000" value="10000">
+                <input type="range" id="price" min="0" max="10000" value="10000" onchange="getHotels()">
             </p>
         </div>
     </div>
+    <div class="container">
+        <div class="row" id="show_hotel_here"></div>
 
+    </div>
 
     <script>
-        $(document).ready(function() {
+
+        var show_hotel_here = document.getElementById('show_hotel_here')
+        $(document).ready(function () {
             $('select').formSelect();
         });
+
+        function getHotels(){
+            var price = document.getElementById('price')
+            var instance = M.FormSelect.getInstance(document.getElementById('features'))
+            var features =''
+            var html =''
+            if (instance){
+                features =instance.getSelectedValues()
+            }
+                {#console.log();#}
+            fetch(`/api/hotels?features=${features}&price=${price.value}`)
+            .then(result => result.json())
+            .then(respnse => {
+                {#console.log(respnse)#}
+                for (var i=0; i<respnse.length; i++){
+                    html +=`
+                        <div class="col s3">
+                            <div class ="card">
+                                <div class = 'card-image'>
+                                    <img src='${respnse[i].hotel_image}'></img>
+                                        <div>
+                                            <span class="card-title black-text">${respnse[i].hotel_name}</span>
+                                        </div>
+
+                                        <div class="card-content">
+                                             price - <span class="new badge">${respnse[i].price}></span>
+                                             <p>${respnse[i].hotel_description.substring(0,20)}</p>
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                        `
+                }
+                console.log(html)
+                show_hotel_here.innerHTML = html
+            })
+        }
+
     </script>
 
 </div>
